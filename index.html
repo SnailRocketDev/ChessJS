@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+    <!-- Chessboard stylesheet -->
+    <link
+      rel="stylesheet"
+      href="node_modules/@chrisoakman/chessboardjs/dist/chessboard-1.0.0.min.css"
+    />
+
+    <!-- Rest of site stylesheet -->
+    <link rel="stylesheet" href="styles.css" />
+
+    <!-- Web version of Jquery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Local version of chessboard -->
+    <script src="node_modules/@chrisoakman/chessboardjs/dist/chessboard-1.0.0.js"></script>
+  </head>
+
+  <body>
+    <div class="container">
+      <div id="myBoard"></div>
+      <script type="module" src="test.js"></script>
+      <div class="info">
+        <div class="header">
+          <h1 class="game-stats-h1">Game Stats</h1>
+        </div>
+        <div class="status-container">
+          <!-- <label>Status:</label>   -->
+          <div id="status"></div>
+        </div>
+        <div class="FEN-container">
+          <!-- <label>FEN:</label> -->
+          <div id="fen"></div>
+        </div>
+        <div class="PGN-container">
+          <!-- <label>PGN:</label> -->
+          <div id="pgn"></div>
+        </div>
+        <div class="footer">
+            <button>&#8634;</button>
+            <button>&#x21A9;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Starts the start and integration script for the chess board + logic -->
+    <script type="module" src="startChess.js"></script>
+  </body>
+</html>

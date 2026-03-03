@@ -1,0 +1,88 @@
+#myBoard {
+  width: 45vw;
+  max-width: 45vw;
+  margin: 50px 5vw 50px 20vw;
+  border-radius: 50px;
+}
+
+body {
+  background-color: #343231;
+}
+
+.info {
+  width: 20vw;
+  background-color: #262422;
+  margin: 50px 5vw 50px 5vw;
+}
+
+.container {
+  display: flex;
+}
+
+.game-stats-h1 {
+  color: white;
+  font-family: sans-serif;
+  margin: 10px;
+}
+
+.header {
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  background-color: #201e1d;
+  text-align: center;
+}
+
+.info {
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.status-container {
+  padding: 25px 0;
+}
+
+.status {
+  color: white;
+}
+
+.footer {
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  background-color: #201e1d;
+  text-align: center;
+  padding: 1% 0;
+  display: flex;
+  justify-content:space-evenly;
+}
+
+.PGN-container {
+    flex-grow: 1;
+    color: lightgrey;
+    padding: 20px 50px 0 15px;
+    font-family: Helvetica;
+    font-weight: 700;
+    line-height: 1.5;
+    word-spacing: 60px;
+    width: 250px;
+}
+
+.FEN-container {
+    color: lightgrey;
+    font-family: Helvetica;
+    font-weight: 500;
+}
+
+.footer button {
+  min-height: 40px;
+  min-width: 150px;
+  margin: 10px 0;
+  background-image: linear-gradient(to bottom, #363434, #272524);
+  border: 0;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 30px;
+  font-family: Arial;
+  color: lightgrey;
+}
