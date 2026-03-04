@@ -40,11 +40,10 @@ body {
 }
 
 .status-container {
-  padding: 25px 0;
-}
-
-.status {
-  color: white;
+  padding: 15px 15px;
+  font-family: Helvetica;
+  font-weight: 700;
+  color: lightgray;
 }
 
 .footer {
@@ -52,31 +51,48 @@ body {
   border-bottom-right-radius: 10px;
   background-color: #201e1d;
   text-align: center;
-  padding: 1% 0;
+  padding: 8px 1% 8px;
   display: flex;
-  justify-content:space-evenly;
+  flex-direction: column;
+}
+
+.bottom-buttons {
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1;
+  gap: 8px;
+  width: 100%;
+}
+
+.top-button {
+  display: flex;
+  flex-grow: 0;
 }
 
 .PGN-container {
-    flex-grow: 1;
-    color: lightgrey;
-    padding: 20px 50px 0 15px;
-    font-family: Helvetica;
-    font-weight: 700;
-    line-height: 1.5;
-    word-spacing: 60px;
-    width: 250px;
+  flex-grow: 1;
+  color: lightgrey;
+  padding: 20px 50px 0 15px;
+  font-family: Helvetica;
+  font-weight: 700;
+  line-height: 1.5;
+  word-spacing: 60px;
+  width: 250px;
 }
 
 .FEN-container {
-    color: lightgrey;
-    font-family: Helvetica;
-    font-weight: 500;
+  color: lightgrey;
+  font-family: Helvetica;
+  font-weight: 500;
+  padding: 0 15px;
+  font-weight: 900;
+  font-size: 16px;
+  font-family: Arial;
 }
 
 .footer button {
+  flex: 1;
   min-height: 40px;
-  min-width: 150px;
   margin: 10px 0;
   background-image: linear-gradient(to bottom, #363434, #272524);
   border: 0;
@@ -85,4 +101,83 @@ body {
   font-size: 30px;
   font-family: Arial;
   color: lightgrey;
+}
+
+.footer button img {
+  max-height: 16px;
+  padding: 12px 8px 8px 8px;
+  align-items: center;
+  justify-content: center;
+  align-content: center;
+}
+
+.download-fen {
+  margin: 0 auto 0 auto;
+  font-size: 8px;
+}
+
+.start .btn-success {
+    font-size: 20px;          
+  padding: 4px 8px;
+  min-height: 40px;          
+  max-height: auto;
+  width: 285px;         
+}
+
+.download-fen .download {
+  font-size: 20px;          
+  padding: 4px 8px;
+  min-height: 40px;          
+  max-height: auto;
+  width: 285px;               
+}
+
+.download {
+  min-height: 30px;
+  max-height: 30px;
+  padding: 8px 12px;
+  font-weight: bold;
+  color: lightgrey;
+  font-family: Arial;
+  background-color: #262422;
+  border: 0;
+  background-image: linear-gradient(to bottom, #363434, #272524);
+  border-radius: 10px;
+  margin: 0;
+  font-size: 8px;
+}
+
+@media screen and (orientation: portrait) {
+  .container {
+    flex-direction: column;
+  }
+
+  #myBoard {
+    margin: 0 5vw 50px 5vw;
+    width: 85vw;
+    max-width: 85vw;
+  }
+  .info {
+    width: 85vw;
+    margin: 8px 5vw 50px 5vw;
+    min-height: 50vh;
+  }
+
+  .game-stats-h1 {
+    font-size: 20px;
+    margin: 6px;
+  }
+
+  .PGN-container {
+    font-size: 12px;
+    word-spacing: 20vw;
+  }
+  .FEN-container {
+    font-size: 12px;
+  }
+
+  .footer button img {
+    max-height: 16px;
+    padding: 8px;
+  }
 }
