@@ -20,9 +20,12 @@ var squareToHighlight = null;
 var colorToHighlight = null;
 var positionCount;
 
+var playerColor = 'w'; // default: player is white, AI is black
+
 var config = {
   draggable: true,
   position: 'start',
+  orientation: 'white', // default orientation is white
   onDragStart: onDragStart,
   onDrop: onDrop,
   onMouseoutSquare: onMouseoutSquare,
@@ -30,6 +33,8 @@ var config = {
   onSnapEnd: onSnapEnd,
 };
 board = Chessboard('myBoard', config);
+
+// Player is white by default — they move first, no AI trigger needed on load
 
 timer = null;
 
@@ -133,29 +138,21 @@ var pstSelf = { w: pst_w, b: pst_b };
 function evaluateBoard(game, move, prevSum, color) {
 
   if (game.in_checkmate()) {
-
-    // Opponent is in checkmate (good for us)
     if (move.color === color) {
       return 10 ** 10;
-    }
-    // Our king's in checkmate (bad for us)
-    else {
+    } else {
       return -(10 ** 10);
     }
   }
 
-  if (game.in_draw() || game.in_threefold_repetition() || game.in_stalemate())
-  {
+  if (game.in_draw() || game.in_threefold_repetition() || game.in_stalemate()) {
     return 0;
   }
 
   if (game.in_check()) {
-    // Opponent is in check (good for us)
     if (move.color === color) {
       prevSum += 50;
-    }
-    // Our king's in check (bad for us)
-    else {
+    } else {
       prevSum -= 50;
     }
   }
@@ -169,26 +166,18 @@ function evaluateBoard(game, move, prevSum, color) {
     move.to.charCodeAt(0) - 'a'.charCodeAt(0),
   ];
 
-  // Change endgame behavior for kings
   if (prevSum < -1500) {
     if (move.piece === 'k') {
       move.piece = 'k_e';
     }
-    // Kings can never be captured
-    // else if (move.captured === 'k') {
-    //   move.captured = 'k_e';
-    // }
   }
 
   if ('captured' in move) {
-    // Opponent piece was captured (good for us)
     if (move.color === color) {
       prevSum +=
         weights[move.captured] +
         pstOpponent[move.color][move.captured][to[0]][to[1]];
-    }
-    // Our piece was captured (bad for us)
-    else {
+    } else {
       prevSum -=
         weights[move.captured] +
         pstSelf[move.color][move.captured][to[0]][to[1]];
@@ -196,19 +185,15 @@ function evaluateBoard(game, move, prevSum, color) {
   }
 
   if (move.flags.includes('p')) {
-    // NOTE: promote to queen for simplicity
     move.promotion = 'q';
 
-    // Our piece was promoted (good for us)
     if (move.color === color) {
       prevSum -=
         weights[move.piece] + pstSelf[move.color][move.piece][from[0]][from[1]];
       prevSum +=
         weights[move.promotion] +
         pstSelf[move.color][move.promotion][to[0]][to[1]];
-    }
-    // Opponent piece was promoted (bad for us)
-    else {
+    } else {
       prevSum +=
         weights[move.piece] + pstSelf[move.color][move.piece][from[0]][from[1]];
       prevSum -=
@@ -216,7 +201,6 @@ function evaluateBoard(game, move, prevSum, color) {
         pstSelf[move.color][move.promotion][to[0]][to[1]];
     }
   } else {
-    // The moved piece still exists on the updated board, so we only need to update the position value
     if (move.color !== color) {
       prevSum += pstSelf[move.color][move.piece][from[0]][from[1]];
       prevSum -= pstSelf[move.color][move.piece][to[0]][to[1]];
@@ -230,45 +214,27 @@ function evaluateBoard(game, move, prevSum, color) {
 }
 
 /*
- * Performs the minimax algorithm to choose the best move: https://en.wikipedia.org/wiki/Minimax (pseudocode provided)
- * Recursively explores all possible moves up to a given depth, and evaluates the game board at the leaves.
- *
- * Basic idea: maximize the minimum value of the position resulting from the opponent's possible following moves.
- * Optimization: alpha-beta pruning: https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning (pseudocode provided)
- *
- * Inputs:
- *  - game:                 the game object.
- *  - depth:                the depth of the recursive tree of all possible moves (i.e. height limit).
- *  - isMaximizingPlayer:   true if the current layer is maximizing, false otherwise.
- *  - sum:                  the sum (evaluation) so far at the current layer.
- *  - color:                the color of the current player.
- *
- * Output:
- *  the best move at the root of the current subtree.
+ * Performs the minimax algorithm to choose the best move.
  */
 function minimax(game, depth, alpha, beta, isMaximizingPlayer, sum, color) {
   positionCount++;
   var children = game.ugly_moves({ verbose: true });
 
-  // Sort moves randomly, so the same move isn't always picked on ties
   children.sort(function (a, b) {
     return 0.5 - Math.random();
   });
 
   var currMove;
-  // Maximum depth exceeded or node is a terminal node (no children)
   if (depth === 0 || children.length === 0) {
     return [null, sum];
   }
 
-  // Find maximum/minimum from list of 'children' (possible moves)
   var maxValue = Number.NEGATIVE_INFINITY;
   var minValue = Number.POSITIVE_INFINITY;
   var bestMove;
   for (var i = 0; i < children.length; i++) {
     currMove = children[i];
 
-    // Note: in our case, the 'children' are simply modified game states
     var currPrettyMove = game.ugly_move(currMove);
     var newSum = evaluateBoard(game, currPrettyMove, sum, color);
     var [childBestMove, childValue] = minimax(
@@ -301,7 +267,6 @@ function minimax(game, depth, alpha, beta, isMaximizingPlayer, sum, color) {
       }
     }
 
-    // Alpha-beta pruning
     if (alpha >= beta) {
       break;
     }
@@ -359,9 +324,9 @@ function getBestMove(game, color, currSum) {
   positionCount = 0;
 
   if (color === 'b') {
-var depth = parseInt($('#search-depth').find(':selected').text(), 10) || 3;
+    var depth = parseInt($('#search-depth').find(':selected').text(), 10) || 3;
   } else {
-var depth = parseInt($('#search-depth-white').find(':selected').text(), 10) || 3;
+    var depth = parseInt($('#search-depth-white').find(':selected').text(), 10) || 3;
   }
 
   var d = new Date().getTime();
@@ -400,12 +365,10 @@ function makeBestMove(color) {
 
   game.move(move);
   board.position(game.fen());
-    console.log(game.fen)
 
   if (color === 'b') {
     checkStatus('black');
 
-    // Highlight black move
     $board.find('.' + squareClass).removeClass('highlight-black');
     $board.find('.square-' + move.from).addClass('highlight-black');
     squareToHighlight = move.to;
@@ -417,7 +380,6 @@ function makeBestMove(color) {
   } else {
     checkStatus('white');
 
-    // Highlight white move
     $board.find('.' + squareClass).removeClass('highlight-white');
     $board.find('.square-' + move.from).addClass('highlight-white');
     squareToHighlight = move.to;
@@ -459,7 +421,6 @@ function reset() {
   $('#advantageColor').text('Neither side');
   $('#advantageNumber').text(globalSum);
 
-  // Kill the Computer vs. Computer callback
   if (timer) {
     clearTimeout(timer);
     timer = null;
@@ -479,6 +440,7 @@ $('#ruyLopezBtn').on('click', function () {
     makeBestMove('b');
   }, 250);
 });
+
 $('#italianGameBtn').on('click', function () {
   reset();
   game.load(
@@ -489,11 +451,13 @@ $('#italianGameBtn').on('click', function () {
     makeBestMove('b');
   }, 250);
 });
+
 $('#sicilianDefenseBtn').on('click', function () {
   reset();
   game.load('rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1');
   board.position(game.fen());
 });
+
 $('#startBtn').on('click', function () {
   reset();
 });
@@ -502,8 +466,16 @@ $('#compVsCompBtn').on('click', function () {
   reset();
   compVsComp('w');
 });
+
+// Reset button: restore player to white, board to white orientation
 $('#resetBtn').on('click', function () {
   reset();
+  playerColor = 'w';
+
+  if (board.orientation() !== 'white') {
+    board.orientation('white');
+  }
+  // Player is white — they move first, no AI trigger needed
 });
 
 var undo_stack = [];
@@ -512,7 +484,6 @@ function undo() {
   var move = game.undo();
   undo_stack.push(move);
 
-  // Maintain a maximum stack size
   if (undo_stack.length > STACK_SIZE) {
     undo_stack.shift();
   }
@@ -525,7 +496,6 @@ $('#undoBtn').on('click', function () {
     $board.find('.' + squareClass).removeClass('highlight-black');
     $board.find('.' + squareClass).removeClass('highlight-hint');
 
-    // Undo twice: Opponent's latest move, followed by player's latest move
     undo();
     window.setTimeout(function () {
       undo();
@@ -545,7 +515,6 @@ function redo() {
 
 $('#redoBtn').on('click', function () {
   if (undo_stack.length >= 2) {
-    // Redo twice: Player's last move, followed by opponent's last move
     redo();
     window.setTimeout(function () {
       redo();
@@ -566,9 +535,9 @@ function showHint() {
   var showHint = document.getElementById('showHint');
   $board.find('.' + squareClass).removeClass('highlight-hint');
 
-  // Show hint (best move for white)
   if (showHint.checked) {
-    var move = getBestMove(game, 'w', -globalSum)[0];
+    var hintSum = (playerColor === 'b') ? globalSum : -globalSum;
+    var move = getBestMove(game, playerColor, hintSum)[0];
 
     $board.find('.square-' + move.from).addClass('highlight-hint');
     $board.find('.square-' + move.to).addClass('highlight-hint');
@@ -595,51 +564,46 @@ function greySquare(square) {
 }
 
 function onDragStart(source, piece) {
-  // do not pick up pieces if the game is over
+  // Do not pick up pieces if the game is over
   if (game.game_over()) return false;
 
-  // or if it's not that side's turn
-  if (
-    (game.turn() === 'w' && piece.search(/^b/) !== -1) ||
-    (game.turn() === 'b' && piece.search(/^w/) !== -1)
-  ) {
-    return false;
-  }
+  // Block dragging the opponent's pieces
+  if (playerColor === 'b' && piece.search(/^w/) !== -1) return false;
+  if (playerColor === 'w' && piece.search(/^b/) !== -1) return false;
+
+  // Block dragging on the opponent's turn
+  if (game.turn() !== playerColor) return false;
 }
 
 function onDrop(source, target) {
   undo_stack = [];
   removeGreySquares();
 
-  // see if the move is legal
   var move = game.move({
     from: source,
     to: target,
-    promotion: 'q', // NOTE: always promote to a queen for example simplicity
+    promotion: 'q',
   });
 
-  // Illegal move
   if (move === null) return 'snapback';
+
+  var aiColor = (playerColor === 'b') ? 'w' : 'b';
 
   globalSum = evaluateBoard(game, move, globalSum, 'b');
   updateAdvantage();
 
-  // Highlight latest move
-  $board.find('.' + squareClass).removeClass('highlight-white');
-
-  $board.find('.square-' + move.from).addClass('highlight-white');
+  // Highlight the player's move
+  var highlightClass = 'highlight-' + (playerColor === 'w' ? 'white' : 'black');
+  $board.find('.' + squareClass).removeClass(highlightClass);
+  $board.find('.square-' + move.from).addClass(highlightClass);
   squareToHighlight = move.to;
-  colorToHighlight = 'white';
+  colorToHighlight = (playerColor === 'w') ? 'white' : 'black';
+  $board.find('.square-' + squareToHighlight).addClass('highlight-' + colorToHighlight);
 
-  $board
-    .find('.square-' + squareToHighlight)
-    .addClass('highlight-' + colorToHighlight);
-
-  if (!checkStatus('black'));
-  {
-    // Make the best move for black
+  var statusColor = (playerColor === 'w') ? 'black' : 'white';
+  if (!checkStatus(statusColor)) {
     window.setTimeout(function () {
-      makeBestMove('b');
+      makeBestMove(aiColor);
       window.setTimeout(function () {
         showHint();
       }, 250);
@@ -648,19 +612,15 @@ function onDrop(source, target) {
 }
 
 function onMouseoverSquare(square, piece) {
-  // get list of possible moves for this square
   var moves = game.moves({
     square: square,
     verbose: true,
   });
 
-  // exit if there are no moves available for this square
   if (moves.length === 0) return;
 
-  // highlight the square they moused over
   greySquare(square);
 
-  // highlight the possible squares for this piece
   for (var i = 0; i < moves.length; i++) {
     greySquare(moves[i].to);
   }
@@ -674,21 +634,21 @@ function onSnapEnd() {
   board.position(game.fen());
 }
 
-
+// Flip button: only swap sides if the game hasn't started
 $("#flip").on("click", function () {
   board.flip();
-});
 
-// $("#resetBtn").on("click", function () {
-  
-//   game.reset();
-//   board.start();
-//   updateStatus();
-// });
+  if (game.history().length === 0) {
+    playerColor = (playerColor === 'b') ? 'w' : 'b';
 
-$('#resetBtn').on('click', function () {
-  game.reset();
-  board.start();
+    // If player flipped to black, AI (white) must move first
+    if (playerColor === 'b') {
+      window.setTimeout(function () {
+        makeBestMove('w');
+      }, 250);
+    }
+    // If player flipped back to white, they move first — no AI trigger needed
+  }
 });
 
 $(window).resize(board.resize);
